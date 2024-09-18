@@ -1,3 +1,4 @@
+from utils import get_redis_cache, set_redis_cache
 from fastapi import FastAPI, Depends
 from config import get_redis_pool
 import aioredis
@@ -15,11 +16,11 @@ def root():
 
 @app.get("/comments")
 async def get_items(redis: aioredis.Redis = Depends(get_redis_pool)):
-    cache = await redis.get('comments')
+    cache = await get_redis_cache(redis, "comments")
 
     if cache:
         print("Cache hit...")
-        return json.loads(cache)
+        return cache
     else:
         print("Cache missed..!")
         response = requests.get(
@@ -27,7 +28,7 @@ async def get_items(redis: aioredis.Redis = Depends(get_redis_pool)):
 
         data = response.json()
         # Cache clear after 10s
-        await redis.setex('comments', 10, json.dumps(data))
+        await set_redis_cache(redis, "comments", data, 10)
 
         return data
 
