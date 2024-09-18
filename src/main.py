@@ -10,7 +10,7 @@ app = FastAPI(title="FastAPI Redis")
 
 @app.get("/")
 def root():
-    return {"message": "FastAPI Redis Server!"}
+    return {"message": "FastAPI Redis!"}
 
 
 @app.get("/comments")
@@ -26,12 +26,12 @@ async def get_items(redis: aioredis.Redis = Depends(get_redis_pool)):
             'https://jsonplaceholder.typicode.com/comments')
 
         data = response.json()
-        # cache clear after 10s
+        # Cache clear after 10s
         await redis.setex('comments', 10, json.dumps(data))
 
         return data
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=9000,
+    uvicorn.run("main:app", host="127.0.0.1", port=8050,
                 reload=True, log_level="info")
